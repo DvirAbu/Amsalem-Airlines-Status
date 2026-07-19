@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>סטטוס חברות תעופה - אמסלם</title>
+
+    <!-- Google Analytics (GA4) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-L2YBE8GECL"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        // מזהה המדידה של גוגל אנליטיקס מעודכן כאן
+        gtag('config', 'G-L2YBE8GECL');
+
+        function trackEvent(eventName, eventParams) {
+            if (typeof gtag === 'function') {
+                gtag('event', eventName, eventParams);
+            }
+        }
+    </script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* Light Theme Variables - Updated to Amsalem Brand Color */
+            --primary: #1bb0ce;
+            --primary-hover: #1598b3;
+            --bg-main: #f4f7f9;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --border: #e2e8f0;
+            
+            --topbar-bg: rgba(255, 255, 255, 0.85);
+            --header-grad-start: #0f172a;
+            --search-bg: #f8fafc;
+            --filter-bg: #f8fafc;
+            --filter-hover: #e2e8f0;
+            --logo-bg: #f8fafc;
+            
+            --highlight-bg: #fef08a;
+            --highlight-text: #854d0e;
+
+            --status-active-bg: #ecfdf5;
+            --status-active-text: #059669;
+            --status-soon-bg: #fffbeb;
+            --status-soon-text: #d97706;
+            --status-suspended-bg: #fef2f2;
+            --status-suspended-text: #dc2626;
+            --status-inactive-bg: #f8fafc;
+            --status-inactive-text: #64748b;
+        }
+
+        [data-theme="dark"] {
+            /* Dark Theme Variables */
+            --bg-main: #0f172a;
+            --bg-card: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #cbd5e1;
+            --border: #334155;
+            
+            --topbar-bg: rgba(15, 23, 42, 0.85);
+            --header-grad-start: #f8fafc;
+            --search-bg: #0b1120;
+            --filter-bg: #334155;
+            --filter-hover: #475569;
+            --logo-bg: #0b1120;
+            
+            --highlight-bg: #ca8a04;
+            --highlight-text: #fefce8;
+
+            --status-active-bg: rgba(5, 150, 105, 0.2);
+            --status-active-text: #34d399;
+            --status-soon-bg: rgba(217, 119, 6, 0.2);
+            --status-soon-text: #fbbf24;
+            --status-suspended-bg: rgba(220, 38, 38, 0.2);
+            --status-suspended-text: #f87171;
+            --status-inactive-bg: rgba(100, 116, 139, 0.2);
+            --status-inactive-text: #94a3b8;
+        }
+
+        body {
+            font-family: 'Heebo', sans-serif;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(var(--border) 1px, transparent 1px);
+            background-size: 24px 24px;
+            color: var(--text-main);
+            min-height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .notification-bar {
+            background: linear-gradient(90deg, #0f172a, #1e293b, #0f172a);
+            color: #e2e8f0;
+            text-align: center;
+            padding: 10px 40px;
+            font-weight: 400;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-bottom: 1px solid #334155;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 51;
+            min-height: 44px;
+        }
+        
+        #newsFlashContent { transition: opacity 0.3s ease; opacity: 1; }
+        .notification-bar b { color: #fbbf24; margin-inline-end: 6px; font-weight: 700; }
+        .notification-icon { color: #fbbf24; margin-inline-end: 10px; font-size: 1.1rem; animation: pulse-gold 2.5s infinite; }
+        
+        .notification-close {
+            position: absolute; left: 20px; background: transparent; border: none;
+            color: #cbd5e1; cursor: pointer; font-size: 1.2rem; transition: color 0.2s, transform 0.2s;
+        }
+        [dir="ltr"] .notification-close { left: auto; right: 20px; }
+        .notification-close:hover { color: #ffffff; transform: scale(1.1); }
+
+        @keyframes pulse-gold {
+            0% { opacity: 0.8; filter: drop-shadow(0 0 0 rgba(251, 191, 36, 0)); }
+            50% { opacity: 1; filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.7)); }
+            100% { opacity: 0.8; filter: drop-shadow(0 0 0 rgba(251, 191, 36, 0)); }
+        }
+
+        .top-bar {
+            background-color: var(--topbar-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .brand-logo img { height: 90px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.05)); }
+        .brand-fallback { display: none; font-size: 1.8rem; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; }
+        .brand-fallback span { color: var(--primary); }
+
+        .header-actions { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; justify-content: flex-end; }
+
+        .theme-toggle, .lang-toggle {
+            background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+            color: white; border: none; padding: 10px 24px; border-radius: 50px; font-weight: 700;
+            font-size: 0.95rem; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+        }
+        
+        .theme-toggle { padding: 10px 18px; }
+        .theme-toggle:hover, .lang-toggle:hover {
+            transform: translateY(-2px); box-shadow: 0 6px 16px rgba(15, 23, 42, 0.3);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+        }
+
+        .header-content { text-align: right; margin-inline-start: 15px; }
+        .header-title {
+            font-size: 1.8rem; font-weight: 800;
+            background: linear-gradient(135deg, var(--header-grad-start) 0%, var(--primary) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin: 0; line-height: 1.2;
+        }
+        .header-subtitle { color: var(--text-muted); font-size: 0.95rem; margin-top: 5px; font-weight: 500; }
+
+        .main-container { max-width: 1400px; margin: 0 auto; padding: 40px 20px; }
+
+        .controls-container {
+            background-color: var(--bg-card); padding: 25px; border-radius: 20px;
+            margin-bottom: 40px; border: 1px solid var(--border); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .search-box { position: relative; margin-bottom: 20px; }
+        .search-box input {
+            width: 100%; padding: 16px; padding-inline-start: 55px; padding-inline-end: 20px;
+            border-radius: 50px; border: 2px solid transparent; background-color: var(--search-bg);
+            color: var(--text-main); font-family: 'Heebo', sans-serif; font-size: 1.05rem;
+            transition: all 0.3s ease; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .search-box input:focus {
+            outline: none; border-color: var(--primary); background-color: var(--bg-card); box-shadow: 0 0 0 4px rgba(27, 176, 206, 0.15);
+        }
+        .search-icon {
+            position: absolute; inset-inline-start: 22px; top: 50%; transform: translateY(-50%); color: var(--primary); font-size: 1.2rem;
+        }
+
+        mark { background-color: var(--highlight-bg); color: var(--highlight-text); padding: 0 2px; border-radius: 4px; font-weight: 800; }
+
+        .filters-and-actions { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+        .filters, .actions-group { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+
+        .filter-btn, .action-btn {
+            background-color: var(--filter-bg); color: var(--text-muted); border: 1px solid var(--border);
+            padding: 10px 24px; border-radius: 50px; font-weight: 600; font-size: 0.95rem;
+            cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 8px;
+        }
+
+        .filter-btn:hover, .action-btn:hover { background-color: var(--filter-hover); color: var(--text-main); }
+        .filter-btn.active {
+            background-color: var(--text-main); color: var(--bg-card); border-color: var(--text-main); box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+        }
+
+        .alliance-section { margin-bottom: 50px; animation: fadeIn 0.6s ease-out; position: relative; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        .alliance-title {
+            font-size: 1.5rem; font-weight: 800; color: var(--text-main); 
+            display: flex; align-items: center; gap: 12px; margin-bottom: 25px;
+            transition: color 0.3s;
+        }
+        
+        .alliance-title::after { content: ''; flex-grow: 1; height: 2px; background: linear-gradient(90deg, var(--border) 0%, transparent 100%); }
+        [dir="ltr"] .alliance-title::after { background: linear-gradient(270deg, var(--border) 0%, transparent 100%); }
+
+        .highlight-section .alliance-title { color: var(--status-soon-text); }
+        .highlight-section .alliance-title::after {
+            background: linear-gradient(90deg, var(--status-soon-text) 0%, transparent 100%); opacity: 0.3;
+        }
+        [dir="ltr"] .highlight-section .alliance-title::after { background: linear-gradient(270deg, var(--status-soon-text) 0%, transparent 100%); }
+
+        .dashboard-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .airline-card {
+            background-color: var(--bg-card); border-radius: 16px; padding: 16px 24px; border: 1px solid var(--border);
+            transition: all 0.3s ease; display: flex; flex-direction: row;
+            align-items: center; justify-content: space-between; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02); position: relative; overflow: hidden;
+        }
+
+        .airline-card::before {
+            content: ''; position: absolute; width: 5px; height: 100%; bottom: 0; right: 0;
+            opacity: 1; transition: width 0.2s ease;
+        }
+        [dir="ltr"] .airline-card::before { right: auto; left: 0; }
+        .airline-card:hover::before { width: 8px; }
+
+        .airline-card:hover { transform: translateX(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); border-color: transparent; }
+        [dir="ltr"] .airline-card:hover { transform: translateX(5px); }
+
+        .airline-card.theme-active::before { background-color: var(--status-active-text); }
+        .airline-card.theme-soon::before { background-color: var(--status-soon-text); }
+        .airline-card.theme-suspended::before { background-color: var(--status-suspended-text); }
+        .airline-card.theme-inactive::before { background-color: var(--status-inactive-text); }
+
+        .card-header { display: flex; align-items: center; gap: 16px; flex-grow: 1; }
+
+        .airline-logo-container {
+            width: 50px; height: 50px; background-color: var(--logo-bg); border-radius: 12px; display: flex; align-items: center;
+            justify-content: center; border: 1px solid var(--border); padding: 4px; flex-shrink: 0; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+            transition: background-color 0.3s;
+        }
+        
+        .airline-real-logo { width: 100%; height: 100%; object-fit: contain; }
+        [data-theme="dark"] .airline-real-logo { mix-blend-mode: normal; }
+        .airline-logo-fallback { font-weight: 800; font-size: 1.1rem; color: var(--text-muted); }
+
+        .airline-info h3 { font-size: 1.15rem; font-weight: 800; margin: 0 0 2px 0; color: var(--text-main); }
+        .airline-info p { color: var(--text-muted); font-size: 0.95rem; margin: 0; display: flex; align-items: center; gap: 6px; font-weight: 500; }
+
+        .status-badge {
+            padding: 12px 18px; border-radius: 16px; display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 1rem;
+            min-width: 220px; justify-content: flex-start;
+        }
+
+        .theme-active .status-badge { background-color: var(--status-active-bg); color: var(--status-active-text); }
+        .theme-active .status-icon { color: var(--status-active-text); }
+        .theme-soon .status-badge { background-color: var(--status-soon-bg); color: var(--status-soon-text); }
+        .theme-soon .status-icon { color: var(--status-soon-text); }
+        .theme-suspended .status-badge { background-color: var(--status-suspended-bg); color: var(--status-suspended-text); }
+        .theme-suspended .status-icon { color: var(--status-suspended-text); }
+        .theme-inactive .status-badge { background-color: var(--status-inactive-bg); color: var(--status-inactive-text); }
+        .theme-inactive .status-icon { color: var(--status-inactive-text); }
+
+        .status-pulse {
+            display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: var(--status-active-text);
+            box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.4); animation: pulse 2s infinite; flex-shrink: 0;
+        }
+        
+        [data-theme="dark"] .status-pulse { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.4); }
+
+        @keyframes pulse { 
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.4); } 
+            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(5, 150, 105, 0); } 
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(5, 150, 105, 0); } 
+        }
+
+        .no-results {
+            text-align: center; padding: 100px 20px; background-color: var(--bg-card); border-radius: 20px; border: 2px dashed var(--border); display: none; margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .brand-logo img { height: 65px; }
+            .top-bar { flex-direction: column; padding: 15px 20px; gap: 15px; text-align: center; }
+            .header-actions { justify-content: center; }
+            .header-content { text-align: center; margin-inline-start: 0; }
+            
+            .filters-and-actions { flex-direction: column; align-items: stretch; }
+            .filters, .actions-group { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 10px; }
+            .filter-btn, .action-btn { white-space: nowrap; }
+            .airline-card { flex-direction: column; align-items: stretch; gap: 15px; }
+            .status-badge { min-width: auto; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="notification-bar" id="notificationBar">
+        <div id="newsFlashContent"></div>
+        <button class="notification-close" onclick="closeNotification()" title="סגור"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <header class="top-bar">
+        <div class="brand-logo">
+            <img src="logo 24 (4).jpg" alt="Amsalem Global Travel Management" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <div class="brand-fallback">AMSALEM<span>.</span></div>
+        </div>
+        <div class="header-actions">
+            <button id="themeToggle" class="theme-toggle" onclick="toggleTheme()" title="החלף מצב תצוגה">
+                <i class="fa-solid fa-moon" id="themeIcon" aria-hidden="true"></i>
+            </button>
+            <button id="langToggle" class="lang-toggle" onclick="toggleLanguage()">
+                English <i class="fa-solid fa-globe" aria-hidden="true"></i>
+            </button>
+            <div class="header-content">
+                <h1 class="header-title">סטטוס חברות תעופה</h1>
+                <p class="header-subtitle"><i class="fa-regular fa-clock" aria-hidden="true"></i> <span id="subtitleText"></span></p>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <div class="controls-container">
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass search-icon" aria-hidden="true"></i>
+                <input type="text" id="searchInput" autocomplete="off" placeholder="חיפוש חברת תעופה או קוד IATA...">
+            </div>
+
+            <div class="filters-and-actions">
+                <div class="filters">
+                    <button class="filter-btn active" data-filter="all"><span id="txtFilterAll">הכל</span> <i class="fa-solid fa-list-ul ms-2"></i></button>
+                    <button class="filter-btn" data-filter="active"><span id="txtFilterActive">פעילות</span> <i class="fa-solid fa-circle-check ms-2"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div id="dashboardContainer">
+            <div id="noResults" class="no-results">
+                <i class="fa-solid fa-plane-slash"></i>
+                <h3>לא נמצאו חברות תעופה</h3>
+                <p>נסה לשנות את מילות החיפוש או את הסינון.</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const CONFIG = {
+            todayISO: '2026-07-19',
+            updatedDate: '17/07/2026',
+            updatedTime: '14:00'
+        };
+
+        const I18N = {
+            he: {
+                title: "סטטוס חברות תעופה",
+                subtitle: `מעודכן ל-${CONFIG.updatedDate} בשעה ${CONFIG.updatedTime}`,
+                searchPlaceholder: "חיפוש חברת תעופה או קוד IATA...",
+                filterAll: "הכל",
+                filterActive: "פעילות",
+                noResultsTitle: "לא נמצאו חברות תעופה",
+                noResultsDesc: "נסה לשנות את מילות החיפוש או את הסינון.",
+                statusActive: "פעילה בנתב\"ג",
+                statusActiveHaifa: "פעילה בחיפה",
+                statusSuspended: "השהתה את פעילותה",
+                statusPassed: "התאריך עבר",
+                statusToday: "חוזרת היום!",
+                statusTomorrow: "חוזרת מחר",
+                statusResumeIn: "תחדש פעילות ב-",
+                statusExpectedIn: "צפויה לחזור ב-",
+                statusSuspendedUntil: "מושהית עד ",
+                airlineCode: "קוד חברה:",
+                langToggle: "English",
+                returningThisWeek: "חוזרות השבוע",
+                newsFlashes: [
+                    "<i class='fa-solid fa-plane-departure notification-icon'></i> <b>עדכון חם:</b> לופטהנזה, אייר פראנס ואיטה חזרו לפעילות בנתב״ג!",
+                    "<i class='fa-solid fa-bolt notification-icon'></i> <b>שימו לב:</b> יורווינגס צפויה לחדש פעילות ב-10 ליולי.",
+                ]
+            },
+            en: {
+                title: "Airlines Flight Status",
+                subtitle: `Updated: ${CONFIG.updatedDate} at ${CONFIG.updatedTime}`,
+                searchPlaceholder: "Search airline or IATA...",
+                filterAll: "All",
+                filterActive: "Active",
+                noResultsTitle: "No Airlines Found",
+                noResultsDesc: "Try adjusting your search or filters.",
+                statusActive: "Active in TLV",
+                statusActiveHaifa: "Active in Haifa",
+                statusSuspended: "Suspended operations",
+                statusPassed: "Date passed",
+                statusToday: "Resuming today!",
+                statusTomorrow: "Resuming tomorrow",
+                statusResumeIn: "Resuming on ",
+                statusExpectedIn: "Expected to return on ",
+                statusSuspendedUntil: "Suspended until ",
+                airlineCode: "Airline Code:",
+                langToggle: "עברית",
+                returningThisWeek: "Returning This Week",
+                newsFlashes: [
+                    "<i class='fa-solid fa-plane-departure notification-icon'></i> <b>Important:</b> Lufthansa, Air France and ITA fully resumed operations!",
+                    "<i class='fa-solid fa-bolt notification-icon'></i> <b>Take Note:</b> Eurowings is expected to resume on July 10th.",
+                ]
+            }
+        };
+
+        let currentLang = 'he';
+        let currentTheme = 'light';
+        let currentNewsIndex = 0;
+        let newsInterval;
+        let isNotificationClosed = false;
+
+        function toggleTheme() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            const icon = document.getElementById('themeIcon');
+            if (currentTheme === 'dark') {
+                icon.className = 'fa-solid fa-sun';
+            } else {
+                icon.className = 'fa-solid fa-moon';
+            }
+            trackEvent('toggle_theme', { theme_selected: currentTheme });
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'he' ? 'en' : 'he';
+            const strings = I18N[currentLang];
+
+            document.documentElement.lang = currentLang;
+            document.documentElement.dir = currentLang === 'he' ? 'rtl' : 'ltr';
+
+            document.querySelector('.header-title').innerText = strings.title;
+            document.getElementById('subtitleText').innerText = strings.subtitle;
+
+            document.getElementById('searchInput').placeholder = strings.searchPlaceholder;
+            document.getElementById('txtFilterAll').innerText = strings.filterAll;
+            document.getElementById('txtFilterActive').innerText = strings.filterActive;
+
+            document.querySelector('#noResults h3').innerText = strings.noResultsTitle;
+            document.querySelector('#noResults p').innerText = strings.noResultsDesc;
+
+            const langBtn = document.getElementById('langToggle');
+            langBtn.innerHTML = `${strings.langToggle} <i class="fa-solid fa-globe"></i>`;
+
+            if(window.innerWidth > 768) {
+                document.querySelector('.header-content').style.textAlign = currentLang === 'en' ? 'left' : 'right';
+            }
+            
+            if (!isNotificationClosed) {
+                updateNewsFlash();
+            }
+
+            applyFilters();
+            trackEvent('toggle_language', { language_selected: currentLang });
+        }
+
+        function updateNewsFlash() {
+            if (isNotificationClosed) return;
+            const flashes = I18N[currentLang].newsFlashes;
+            const content = document.getElementById('newsFlashContent');
+            content.style.opacity = 0;
+            setTimeout(() => {
+                content.innerHTML = flashes[currentNewsIndex];
+                content.style.opacity = 1;
+                currentNewsIndex = (currentNewsIndex + 1) % flashes.length;
+            }, 300);
+        }
+
+        function initCarousel() {
+            if (isNotificationClosed) return;
+            updateNewsFlash();
+            newsInterval = setInterval(updateNewsFlash, 5000);
+        }
+
+        function closeNotification() {
+            isNotificationClosed = true;
+            document.getElementById('notificationBar').style.display = 'none';
+            clearInterval(newsInterval);
+        }
+
+        const REGION_GROUPS = [
+            { id: "il", title: "ישראל", titleEn: "Israel" },
+            { id: "na", title: "ארצות הברית וקנדה", titleEn: "North America" },
+            { id: "gr_cy", title: "יוון וקפריסין", titleEn: "Greece & Cyprus" },
+            { id: "we_eu", title: "מערב ומרכז אירופה", titleEn: "Western & Central Europe" },
+            { id: "ee_ba", title: "מזרח אירופה והבלקן", titleEn: "Eastern Europe & Balkans" },
+            { id: "me_af", title: "איחוד האמירויות ואפריקה", titleEn: "UAE & Africa" },
+            { id: "as", title: "אסיה והקווקז", titleEn: "Asia & Caucasus" }
+        ];
+
+        const AIRLINES = [
+            { name: "אל על", nameEn: "El Al", iata: "LY", status: "active", region: "il" },
+            { name: "ישראייר", nameEn: "Israir", iata: "6H", status: "active", region: "il" },
+            { name: "ארקיע", nameEn: "Arkia", iata: "IZ", status: "active", region: "il" },
+            { name: "אייר חיפה", nameEn: "Air Haifa", iata: "E2", status: "active_haifa", region: "il", customLogo: "air_haifa_logo.png" },
+            { name: "וואן קליק איירווייז", nameEn: "One Click Airways", iata: "4L", status: "active", region: "we_eu", customLogo: "oneclick-airways-logo-alt.png" },
+            { name: "אג'יאן איירליינס", nameEn: "Aegean Airlines", iata: "A3", status: "active", region: "gr_cy" },
+            { name: "אוזבקיסטן איירוייז", nameEn: "Uzbekistan Airways", iata: "HY", status: "active", region: "as" },
+            { name: "אוסטריאן איירליינס", nameEn: "Austrian Airlines", iata: "OS", status: "active", region: "we_eu" },
+            { name: "אזימוט", nameEn: "Azimuth", iata: "A4", status: "active", region: "as" },
+            { name: "אזרבייג׳ן איירליינס", nameEn: "Azerbaijan Airlines", iata: "J2", status: "active", region: "as" },
+            { name: "איטה (ITA)", nameEn: "ITA Airways", iata: "AZ", status: "active", region: "we_eu" },
+            { name: "אייר אירופה", nameEn: "Air Europa", iata: "UX", status: "active", region: "we_eu" },
+            { name: "אייר בלטיק", nameEn: "airBaltic", iata: "BT", status: "active", region: "ee_ba" },
+            { name: "אייר פראנס", nameEn: "Air France", iata: "AF", status: "active", region: "we_eu" },
+            { name: "איתיחאד", nameEn: "Etihad Airways", iata: "EY", status: "active", region: "me_af" },
+            { name: "אתיופיאן איירליינס", nameEn: "Ethiopian Airlines", iata: "ET", status: "active", region: "me_af" },
+            { name: "בולגריה אייר", nameEn: "Bulgaria Air", iata: "FB", status: "active", region: "ee_ba" },
+            { name: "בלאביה", nameEn: "Belavia", iata: "B2", status: "active", region: "ee_ba" },
+            { name: "בלו בירד", nameEn: "Bluebird Airways", iata: "BZ", status: "active", region: "gr_cy" },
+            { name: "היי-סקיי (HISKY)", nameEn: "HiSky", iata: "H4", status: "active", region: "ee_ba" },
+            { name: "וויז אייר", nameEn: "Wizz Air", iata: "W6", status: "active", region: "ee_ba" },
+            { name: "טארום", nameEn: "TAROM", iata: "RO", status: "active", region: "ee_ba" },
+            { name: "טוס איירוויז", nameEn: "TUS Airways", iata: "U8", status: "active", region: "gr_cy" },
+            { name: "יורווינגס", nameEn: "Eurowings", iata: "EW", status: "suspended", until: "2026-07-10", region: "we_eu" },
+            { name: "לוט", nameEn: "LOT Polish Airlines", iata: "LO", status: "active", region: "ee_ba" },
+            { name: "לופטהנזה", nameEn: "Lufthansa", iata: "LH", status: "active", region: "we_eu" },
+            { name: "נאוס", nameEn: "Neos", iata: "NO", status: "active", region: "we_eu" },
+            { name: "סייפרוס איירוייז", nameEn: "Cyprus Airways", iata: "CY", status: "active", region: "gr_cy" },
+            { name: "סמארטווינגס", nameEn: "Smartwings", iata: "QS", status: "active", region: "ee_ba" },
+            { name: "סקיי אפ", nameEn: "SkyUp", iata: "PQ", status: "active", region: "ee_ba" },
+            { name: "סקיי אקספרס", nameEn: "SKY express", iata: "GQ", status: "active", region: "gr_cy" },
+            { name: "פליי דובאי", nameEn: "flydubai", iata: "FZ", status: "active", region: "me_af" },
+            { name: "פליי וואן", nameEn: "FlyOne", iata: "5F", status: "active", region: "ee_ba" },
+            { name: "צנטרום אייר", nameEn: "Centrum Air", iata: "C6", status: "active", region: "as" },
+            { name: "רד ווינגס", nameEn: "Red Wings Airlines", iata: "WZ", status: "active", region: "as" },
+            { name: "איבריה", nameEn: "Iberia", iata: "IB", status: "suspended", until: "2026-10-24", region: "we_eu" },
+            { name: "אייר אינדיה", nameEn: "Air India", iata: "AI", status: "suspended", until: "2026-08-31", region: "as" },
+            { name: "אייר סיישל", nameEn: "Air Seychelles", iata: "HM", status: "suspended", until: "2026-08-05", region: "me_af" },
+            { name: "אייר אינדיה", nameEn: "Air India", iata: "AI", status: "suspended", until: "2026-09-01", region: "as" },
+            { name: "אייר סיישל", nameEn: "Air Seychelles", iata: "HM", status: "suspended", until: "2026-08-20", region: "me_af" },
+            { name: "אייר קנדה", nameEn: "Air Canada", iata: "AC", status: "suspended", until: "2026-10-24", region: "na" },
+            { name: "אנימה ווינגס", nameEn: "Animawings", iata: "AWG", status: "suspended", until: "2026-08-10", region: "ee_ba" },
+            { name: "בראסלס איירליינס", nameEn: "Brussels Airlines", iata: "SN", status: "suspended", until: "2026-08-05", region: "we_eu" },
+            { name: "בריטיש איירווייז", nameEn: "British Airways", iata: "BA", status: "suspended", until: "2026-10-24", region: "we_eu" },
+            { name: "ג׳אורג׳יאן איירווייז", nameEn: "Georgian Airways", iata: "A9", status: "suspended", until: "2026-09-01", region: "ee_ba" },
+            { name: "דלתא איירליינס", nameEn: "Delta Air Lines", iata: "DL", status: "suspended", until: "2026-09-05", region: "na" },
+            { name: "היינאן איירליינס", nameEn: "Hainan Airlines", iata: "HU", status: "suspended", until: "2026-10-22", region: "as" },
+            { name: "טראנסאוויה צרפת", nameEn: "Transavia France", iata: "TO", status: "suspended", until: "2026-09-06", region: "we_eu" },
+            { name: "יונייטד", nameEn: "United Airlines", iata: "UA", status: "suspended", until: "2026-09-07", region: "na" },
+            { name: "סוויס", nameEn: "SWISS", iata: "LX", status: "suspended", until: "2026-08-01", region: "we_eu" },
+            { name: "סקנדינביאן איירליינס", nameEn: "SAS", iata: "SK", status: "suspended", until: "2026-09-08", region: "we_eu" },
+            
+            { name: "קלמ (KLM)", nameEn: "KLM", iata: "KL", status: "inactive", region: "we_eu" },
+            { name: "איזיג'ט", nameEn: "easyJet", iata: "U2", status: "inactive", region: "we_eu" },
+            { name: "אייר סרביה", nameEn: "Air Serbia", iata: "JU", status: "inactive", region: "ee_ba" },
+            { name: "אמירייטס", nameEn: "Emirates", iata: "EK", status: "inactive", region: "me_af" },
+            { name: "אמריקן איירליינס", nameEn: "American Airlines", iata: "AA", status: "inactive", until: "2027-01-05", region: "na" },
+            { name: "גאלף אייר", nameEn: "Gulf Air", iata: "GF", status: "inactive", region: "me_af" },
+            { name: "וויולינג", nameEn: "Vueling", iata: "VY", status: "inactive", region: "we_eu" },
+            { name: "טאפ אייר פורטוגל", nameEn: "TAP Air Portugal", iata: "TP", status: "inactive", until: "2026-08-18", region: "we_eu" },
+            { name: "נורווג'יאן אייר", nameEn: "Norwegian Air", iata: "DY", status: "inactive", region: "we_eu" },
+            { name: "פינאייר", nameEn: "Finnair", iata: "AY", status: "inactive", region: "we_eu" },
+            { name: "קוריאן אייר", nameEn: "Korean Air", iata: "KE", status: "inactive", region: "as" },
+            { name: "קונדור", nameEn: "Condor", iata: "DE", status: "inactive", until: "2026-08-01", region: "we_eu" },
+            { name: "קתאי פסיפיק", nameEn: "Cathay Pacific", iata: "CX", status: "inactive", region: "as" },
+            { name: "רויאל אייר מארוק", nameEn: "Royal Air Maroc", iata: "AT", status: "inactive", region: "me_af" },
+            { name: "רויאל ג׳ורדניאן", nameEn: "Royal Jordanian", iata: "RJ", status: "inactive", region: "me_af" },
+            { name: "ריינאייר", nameEn: "Ryanair", iata: "FR", status: "inactive", region: "we_eu" }
+        ];
+
+        const TODAY = new Date(CONFIG.todayISO + 'T00:00:00');
+        TODAY.setHours(0, 0, 0, 0);
+
+        function calculateDaysUntil(dateString) {
+            if (!dateString) return null;
+            const targetDate = new Date(dateString + 'T00:00:00');
+            targetDate.setHours(0, 0, 0, 0);
+            return Math.ceil((targetDate - TODAY) / (1000 * 60 * 60 * 24));
+        }
+
+        function formatDateStr(dateString) {
+            if (!dateString) return '';
+            const parts = dateString.split('-');
+            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        }
+
+        function resolveStatus(airline) {
+            const strings = I18N[currentLang];
+            if (airline.status === 'active') return { theme: 'active', text: strings.statusActive, isLive: true };
+            if (airline.status === 'active_haifa') return { theme: 'active', text: strings.statusActiveHaifa, isLive: true };
+
+            const diffDays = calculateDaysUntil(airline.until);
+            const dateFormatted = formatDateStr(airline.until);
+
+            if (diffDays === null) return { theme: 'inactive', text: strings.statusSuspended, isLive: false };
+            if (diffDays < 0) return { theme: 'suspended', text: strings.statusSuspended, isLive: false };
+            if (diffDays === 0) return { theme: 'soon', text: strings.statusToday, isLive: false };
+            if (diffDays === 1) return { theme: 'soon', text: strings.statusTomorrow, isLive: false };
+            if (diffDays <= 14 || airline.status === 'soon') return { theme: 'soon', text: `${strings.statusResumeIn}${dateFormatted}`, isLive: false };
+
+            if (airline.status === 'inactive') return { theme: 'inactive', text: `${strings.statusExpectedIn}${dateFormatted}`, isLive: false };
+            return { theme: 'suspended', text: `${strings.statusSuspendedUntil}${dateFormatted}`, isLive: false };
+        }
+
+        function createCardHTML(airline) {
+            const st = resolveStatus(airline);
+            const themeClass = 'theme-' + st.theme;
+            const iconClass = { active: 'fa-circle-check', soon: 'fa-clock', suspended: 'fa-circle-pause', inactive: 'fa-circle-minus' }[st.theme];
+
+            let iataText = airline.iata && airline.iata !== "???" ? airline.iata : "--";
+            let nameToDisplay = currentLang === 'en' ? airline.nameEn : airline.name;
+            const strings = I18N[currentLang];
+            const searchVal = currentSearch.trim();
+
+            if (searchVal) {
+                const escapedSearch = searchVal.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const regex = new RegExp(`(${escapedSearch})`, 'gi');
+                nameToDisplay = nameToDisplay.replace(regex, '<mark>$1</mark>');
+                if (iataText !== '--') {
+                    iataText = iataText.replace(regex, '<mark>$1</mark>');
+                }
+            }
+
+            const badgeLeading = st.isLive ? '<span class="status-pulse"></span>' : `<i class="fa-solid ${iconClass} status-icon"></i>`;
+
+            let logoHtml;
+            const cleanIataText = airline.iata && airline.iata !== "???" ? airline.iata : "--";
+            if (airline.customLogo) {
+                logoHtml = `<img src="${airline.customLogo}" class="airline-real-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"><div class="airline-logo-fallback" style="display: none;">${cleanIataText}</div>`;
+            } else if (airline.iata && airline.iata !== "???") {
+                logoHtml = `<img src="https://pics.avs.io/200/200/${airline.iata}.png" class="airline-real-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"><div class="airline-logo-fallback" style="display: none;">${cleanIataText}</div>`;
+            } else {
+                logoHtml = `<div class="airline-logo-fallback">${iataText}</div>`;
+            }
+
+            // פה התווסף themeClass ברמת ה-article כדי להפעיל את הפס הצידי הקבוע דרך ה-CSS
+            return `
+                <article class="airline-card ${themeClass}">
+                    <div class="card-header">
+                        <div class="airline-logo-container">${logoHtml}</div>
+                        <div class="airline-info">
+                            <h3>${nameToDisplay}</h3>
+                            <p><i class="fa-solid fa-plane"></i> ${strings.airlineCode} ${iataText}</p>
+                        </div>
+                    </div>
+                    <div class="status-badge">
+                        ${badgeLeading}
+                        <span class="status-text">${st.text}</span>
+                    </div>
+                </article>
+            `;
+        }
+
+        function sortAirlinesWithinGroup(a, b) {
+            return currentLang === 'en' ? a.nameEn.localeCompare(b.nameEn, 'en') : a.name.localeCompare(b.name, 'he');
+        }
+
+        function renderAirlines(airlinesToRender) {
+            const container = document.getElementById('dashboardContainer');
+            const noResults = document.getElementById('noResults');
+
+            Array.from(container.children).forEach(child => { if (child.id !== 'noResults') child.remove(); });
+            
+            if (airlinesToRender.length > 0) {
+                const returningSoon = airlinesToRender.filter(a => {
+                    if (a.status === 'active' || a.status === 'active_haifa') return false;
+                    const diff = calculateDaysUntil(a.until);
+                    return diff !== null && diff >= 0 && diff <= 7;
+                });
+
+                const returningNames = new Set(returningSoon.map(a => a.name));
+
+                if (returningSoon.length > 0) {
+                    returningSoon.sort(sortAirlinesWithinGroup);
+                    const section = document.createElement('div');
+                    section.className = 'alliance-section highlight-section';
+                    
+                    section.innerHTML = `
+                        <h2 class="alliance-title">
+                            <i class="fa-solid fa-bolt"></i> ${I18N[currentLang].returningThisWeek}
+                        </h2>
+                        <div class="dashboard-list">${returningSoon.map(createCardHTML).join('')}</div>
+                    `;
+                    container.insertBefore(section, noResults);
+                }
+
+                REGION_GROUPS.forEach(group => {
+                    const groupAirlines = airlinesToRender.filter(a => a.region === group.id && !returningNames.has(a.name));
+                    if (groupAirlines.length === 0) return;
+
+                    groupAirlines.sort(sortAirlinesWithinGroup);
+
+                    const section = document.createElement('div');
+                    section.className = 'alliance-section';
+
+                    section.innerHTML = `
+                        <h2 class="alliance-title">${currentLang === 'en' ? group.titleEn : group.title}</h2>
+                        <div class="dashboard-list">${groupAirlines.map(createCardHTML).join('')}</div>
+                    `;
+                    container.insertBefore(section, noResults);
+                });
+                
+                noResults.style.display = 'none';
+            } else {
+                noResults.style.display = 'block';
+            }
+        }
+
+        let currentFilter = 'all';
+        let currentSearch = '';
+
+        function getFilteredAirlines() {
+            const searchLower = currentSearch.trim().toLowerCase();
+            return AIRLINES.filter(airline => {
+                const matchesSearch = !searchLower || airline.name.toLowerCase().includes(searchLower) || (airline.nameEn && airline.nameEn.toLowerCase().includes(searchLower)) || airline.iata.toLowerCase().includes(searchLower);
+                const effectiveStatus = (airline.status === 'active' || airline.status === 'active_haifa') ? 'active' : 'suspended';
+                const matchesFilter = currentFilter === 'all' || effectiveStatus === currentFilter;
+                return matchesSearch && matchesFilter;
+            });
+        }
+
+        function applyFilters() { renderAirlines(getFilteredAirlines()); }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('subtitleText').innerText = I18N.he.subtitle;
+            initCarousel();
+
+            const searchInput = document.getElementById('searchInput');
+            let t;
+            searchInput.addEventListener('input', (e) => {
+                currentSearch = e.target.value;
+                clearTimeout(t);
+                t = setTimeout(() => {
+                    applyFilters();
+                    if (currentSearch.trim() !== '') {
+                        trackEvent('search', { search_term: currentSearch.trim() });
+                    }
+                }, 500);
+            });
+
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentFilter = btn.getAttribute('data-filter');
+                    applyFilters();
+                    trackEvent('filter_used', { filter_type: currentFilter });
+                });
+            });
+
+            applyFilters();
+        });
+    </script>
+</body>
+</html>
