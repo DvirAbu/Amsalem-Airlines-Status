@@ -95,41 +95,6 @@
             transition: background-color 0.3s, color 0.3s;
         }
 
-        .notification-bar {
-            background: linear-gradient(90deg, #0f172a, #1e293b, #0f172a);
-            color: #e2e8f0;
-            text-align: center;
-            padding: 10px 40px;
-            font-weight: 400;
-            font-size: 0.95rem;
-            letter-spacing: 0.5px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-bottom: 1px solid #334155;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            position: relative;
-            z-index: 51;
-            min-height: 44px;
-        }
-        
-        #newsFlashContent { transition: opacity 0.3s ease; opacity: 1; }
-        .notification-bar b { color: #fbbf24; margin-inline-end: 6px; font-weight: 700; }
-        .notification-icon { color: #fbbf24; margin-inline-end: 10px; font-size: 1.1rem; animation: pulse-gold 2.5s infinite; }
-        
-        .notification-close {
-            position: absolute; left: 20px; background: transparent; border: none;
-            color: #cbd5e1; cursor: pointer; font-size: 1.2rem; transition: color 0.2s, transform 0.2s;
-        }
-        [dir="ltr"] .notification-close { left: auto; right: 20px; }
-        .notification-close:hover { color: #ffffff; transform: scale(1.1); }
-
-        @keyframes pulse-gold {
-            0% { opacity: 0.8; filter: drop-shadow(0 0 0 rgba(251, 191, 36, 0)); }
-            50% { opacity: 1; filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.7)); }
-            100% { opacity: 0.8; filter: drop-shadow(0 0 0 rgba(251, 191, 36, 0)); }
-        }
-
         .top-bar {
             background-color: var(--topbar-bg);
             backdrop-filter: blur(12px);
@@ -315,11 +280,6 @@
 </head>
 <body>
 
-    <div class="notification-bar" id="notificationBar">
-        <div id="newsFlashContent"></div>
-        <button class="notification-close" onclick="closeNotification()" title="סגור"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-
     <header class="top-bar">
         <div class="brand-logo">
             <img src="logo-amsalem.jpg.jpg" alt="Amsalem Global Travel Management">
@@ -364,9 +324,9 @@
 
     <script>
         const CONFIG = {
-            todayISO: '2026-07-19',
-            updatedDate: '17/07/2026',
-            updatedTime: '14:00'
+            todayISO: '2026-08-02',
+            updatedDate: '01/08/2026',
+            updatedTime: '17:30'
         };
 
         const I18N = {
@@ -389,11 +349,7 @@
                 statusSuspendedUntil: "מושהית עד ",
                 airlineCode: "קוד חברה:",
                 langToggle: "English",
-                returningThisWeek: "חוזרות השבוע",
-                newsFlashes: [
-                    "<i class='fa-solid fa-plane-departure notification-icon'></i> <b>עדכון חם:</b> לופטהנזה, אייר פראנס ואיטה חזרו לפעילות בנתב״ג!",
-                    "<i class='fa-solid fa-bolt notification-icon'></i> <b>שימו לב:</b> יורווינגס צפויה לחדש פעילות ב-10 ליולי.",
-                ]
+                returningThisWeek: "חוזרות השבוע"
             },
             en: {
                 title: "Airlines Flight Status",
@@ -414,19 +370,12 @@
                 statusSuspendedUntil: "Suspended until ",
                 airlineCode: "Airline Code:",
                 langToggle: "עברית",
-                returningThisWeek: "Returning This Week",
-                newsFlashes: [
-                    "<i class='fa-solid fa-plane-departure notification-icon'></i> <b>Important:</b> Lufthansa, Air France and ITA fully resumed operations!",
-                    "<i class='fa-solid fa-bolt notification-icon'></i> <b>Take Note:</b> Eurowings is expected to resume on July 10th.",
-                ]
+                returningThisWeek: "Returning This Week"
             }
         };
 
         let currentLang = 'he';
         let currentTheme = 'light';
-        let currentNewsIndex = 0;
-        let newsInterval;
-        let isNotificationClosed = false;
 
         function toggleTheme() {
             currentTheme = currentTheme === 'light' ? 'dark' : 'light';
@@ -463,37 +412,11 @@
             if(window.innerWidth > 768) {
                 document.querySelector('.header-content').style.textAlign = currentLang === 'en' ? 'left' : 'right';
             }
-            
-            if (!isNotificationClosed) {
-                updateNewsFlash();
-            }
 
             applyFilters();
+            
+            // דיווח לאנליטיקס על שינוי שפה
             trackEvent('toggle_language', { language_selected: currentLang });
-        }
-
-        function updateNewsFlash() {
-            if (isNotificationClosed) return;
-            const flashes = I18N[currentLang].newsFlashes;
-            const content = document.getElementById('newsFlashContent');
-            content.style.opacity = 0;
-            setTimeout(() => {
-                content.innerHTML = flashes[currentNewsIndex];
-                content.style.opacity = 1;
-                currentNewsIndex = (currentNewsIndex + 1) % flashes.length;
-            }, 300);
-        }
-
-        function initCarousel() {
-            if (isNotificationClosed) return;
-            updateNewsFlash();
-            newsInterval = setInterval(updateNewsFlash, 5000);
-        }
-
-        function closeNotification() {
-            isNotificationClosed = true;
-            document.getElementById('notificationBar').style.display = 'none';
-            clearInterval(newsInterval);
         }
 
         const REGION_GROUPS = [
@@ -541,11 +464,11 @@
             { name: "פליי דובאי", nameEn: "flydubai", iata: "FZ", status: "active", region: "me_af" },
             { name: "פליי וואן", nameEn: "FlyOne", iata: "5F", status: "active", region: "ee_ba" },
             { name: "צנטרום אייר", nameEn: "Centrum Air", iata: "C6", status: "active", region: "as" },
+            { name: "קאנוט שארק", nameEn: "Qanot Sharq", iata: "HH", status: "active", region: "as" },
+            { name: "קונדור", nameEn: "Condor", iata: "DE", status: "active", region: "we_eu" },
             { name: "רד ווינגס", nameEn: "Red Wings Airlines", iata: "WZ", status: "active", region: "as" },
             { name: "איבריה", nameEn: "Iberia", iata: "IB", status: "suspended", until: "2026-10-24", region: "we_eu" },
-            { name: "אייר אינדיה", nameEn: "Air India", iata: "AI", status: "suspended", until: "2026-08-31", region: "as" },
-            { name: "אייר סיישל", nameEn: "Air Seychelles", iata: "HM", status: "suspended", until: "2026-08-05", region: "me_af" },
-            { name: "אייר אינדיה", nameEn: "Air India", iata: "AI", status: "suspended", until: "2026-09-01", region: "as" },
+            { name: "אייר אינדיה", nameEn: "Air India", iata: "AI", status: "suspended", until: "2026-09-30", region: "as" },
             { name: "אייר סיישל", nameEn: "Air Seychelles", iata: "HM", status: "suspended", until: "2026-08-20", region: "me_af" },
             { name: "אייר קנדה", nameEn: "Air Canada", iata: "AC", status: "suspended", until: "2026-10-24", region: "na" },
             { name: "אנימה ווינגס", nameEn: "Animawings", iata: "AWG", status: "suspended", until: "2026-08-10", region: "ee_ba" },
@@ -556,9 +479,7 @@
             { name: "היינאן איירליינס", nameEn: "Hainan Airlines", iata: "HU", status: "suspended", until: "2026-10-22", region: "as" },
             { name: "טראנסאוויה צרפת", nameEn: "Transavia France", iata: "TO", status: "suspended", until: "2026-09-06", region: "we_eu" },
             { name: "יונייטד", nameEn: "United Airlines", iata: "UA", status: "suspended", until: "2026-09-07", region: "na" },
-            { name: "סוויס", nameEn: "SWISS", iata: "LX", status: "suspended", until: "2026-08-01", region: "we_eu" },
             { name: "סקנדינביאן איירליינס", nameEn: "SAS", iata: "SK", status: "suspended", until: "2026-09-08", region: "we_eu" },
-            
             { name: "קלמ (KLM)", nameEn: "KLM", iata: "KL", status: "inactive", region: "we_eu" },
             { name: "איזיג'ט", nameEn: "easyJet", iata: "U2", status: "inactive", region: "we_eu" },
             { name: "אייר סרביה", nameEn: "Air Serbia", iata: "JU", status: "inactive", region: "ee_ba" },
@@ -566,11 +487,10 @@
             { name: "אמריקן איירליינס", nameEn: "American Airlines", iata: "AA", status: "inactive", until: "2027-01-05", region: "na" },
             { name: "גאלף אייר", nameEn: "Gulf Air", iata: "GF", status: "inactive", region: "me_af" },
             { name: "וויולינג", nameEn: "Vueling", iata: "VY", status: "inactive", region: "we_eu" },
-            { name: "טאפ אייר פורטוגל", nameEn: "TAP Air Portugal", iata: "TP", status: "inactive", until: "2026-08-18", region: "we_eu" },
+            { name: "טאפ אייר פורטוגל", nameEn: "TAP Air Portugal", iata: "TP", status: "inactive", until: "2026-09-15", region: "we_eu" },
             { name: "נורווג'יאן אייר", nameEn: "Norwegian Air", iata: "DY", status: "inactive", region: "we_eu" },
             { name: "פינאייר", nameEn: "Finnair", iata: "AY", status: "inactive", region: "we_eu" },
             { name: "קוריאן אייר", nameEn: "Korean Air", iata: "KE", status: "inactive", region: "as" },
-            { name: "קונדור", nameEn: "Condor", iata: "DE", status: "inactive", until: "2026-08-01", region: "we_eu" },
             { name: "קתאי פסיפיק", nameEn: "Cathay Pacific", iata: "CX", status: "inactive", region: "as" },
             { name: "רויאל אייר מארוק", nameEn: "Royal Air Maroc", iata: "AT", status: "inactive", region: "me_af" },
             { name: "רויאל ג׳ורדניאן", nameEn: "Royal Jordanian", iata: "RJ", status: "inactive", region: "me_af" },
@@ -732,7 +652,6 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('subtitleText').innerText = I18N.he.subtitle;
-            initCarousel();
 
             const searchInput = document.getElementById('searchInput');
             let t;
